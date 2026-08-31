@@ -5,16 +5,17 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
+import { CartProvider } from "@/contexts/cart-context";
+import { DatabaseProvider } from "@/contexts/database-context";
 
 export const unstable_settings = {
-  initialRouteName: "(drawer)",
+  initialRouteName: "(tabs)",
 };
 
 function StackLayout() {
   return (
     <Stack screenOptions={{}}>
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   );
 }
@@ -24,9 +25,13 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
         <AppThemeProvider>
-          <HeroUINativeProvider>
-            <StackLayout />
-          </HeroUINativeProvider>
+          <DatabaseProvider>
+            <CartProvider>
+              <HeroUINativeProvider>
+                <StackLayout />
+              </HeroUINativeProvider>
+            </CartProvider>
+          </DatabaseProvider>
         </AppThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>
