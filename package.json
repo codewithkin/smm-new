@@ -1,0 +1,33 @@
+{
+  "name": "smart-switch-mobile",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "dev:native": "turbo run dev -F native --",
+    "dev:web": "turbo run dev -F web --",
+    "dev:server": "turbo run dev -F server --",
+    "db:push": "turbo run db:push -F @smart-switch-mobile/db --",
+    "db:studio": "turbo run db:studio -F @smart-switch-mobile/db --",
+    "db:generate": "turbo run db:generate -F @smart-switch-mobile/db --",
+    "db:migrate": "turbo run db:migrate -F @smart-switch-mobile/db --"
+  },
+  "dependencies": {
+    "@smart-switch-mobile/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@smart-switch-mobile/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "turbo": "^2.10.12",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@11.4.0"
+}

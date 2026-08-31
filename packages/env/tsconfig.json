@@ -1,0 +1,3 @@
+{
+  "extends": "@smart-switch-mobile/config/tsconfig.base.json"
+}
