@@ -2,12 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/pos/pressable-scale";
 import { useDatabase } from "@/contexts/database-context";
-import { settingsQueries, shortName } from "@/lib/db/database";
+import { clearAllData, settingsQueries, shortName } from "@/lib/db/database";
+import { resetPrinterAddress } from "@/lib/printer";
 import { useIsTablet } from "@/lib/responsive";
 import { tokens } from "@/lib/theme";
 
@@ -36,6 +37,30 @@ export default function SettingsScreen() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
+  };
+
+  const clearAll = () => {
+    Alert.alert(
+      "Clear all data?",
+      "This deletes every sale, product and setting on this device and returns it to first-time setup. This can't be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear everything",
+          style: "destructive",
+          onPress: async () => {
+            if (!db) return;
+            try {
+              await clearAllData(db);
+              resetPrinterAddress();
+              router.replace("/first-run");
+            } catch (e) {
+              Alert.alert("Couldn't clear data", e instanceof Error ? e.message : "Something went wrong.");
+            }
+          },
+        },
+      ],
+    );
   };
 
   const version = Constants.expoConfig?.version ?? "1.0.0";
@@ -113,6 +138,20 @@ export default function SettingsScreen() {
             <Text style={styles.offlineBody}>Sales, stock and receipts never leave this device.</Text>
           </View>
         </View>
+
+        <View style={styles.dangerCard}>
+          <View style={styles.cardTitleRow}>
+            <View style={styles.titleBar} />
+            <Text style={styles.cardTitle}>Danger zone</Text>
+          </View>
+          <Text style={styles.dangerBody}>
+            Wipe this till back to factory-first-run. Every sale, product and setting is removed.
+          </Text>
+          <PressableScale onPress={clearAll} style={styles.clearBtn}>
+            <Ionicons name="trash-outline" size={17} color="#FFFFFF" />
+            <Text style={styles.clearText}>Clear all data</Text>
+          </PressableScale>
+        </View>
       </ScrollView>
     </View>
   );
@@ -183,4 +222,18 @@ const styles = StyleSheet.create({
   offlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: tokens.color.successStrong },
   offlineTitle: { fontFamily: tokens.font.sansBold, fontSize: 13, color: tokens.color.success },
   offlineBody: { marginTop: 2, fontFamily: tokens.font.sans, fontSize: 11.5, color: tokens.color.success, opacity: 0.85 },
+
+  dangerCard: { backgroundColor: tokens.color.surface, borderRadius: 20, borderWidth: 1, borderColor: tokens.color.dangerBorder, padding: 20, ...CARD_SHADOW },
+  dangerBody: { fontFamily: tokens.font.sans, fontSize: 12.5, lineHeight: 19, color: tokens.color.inkMuted },
+  clearBtn: {
+    height: 48,
+    marginTop: 16,
+    borderRadius: 12,
+    backgroundColor: tokens.color.danger,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  clearText: { fontFamily: tokens.font.sansBold, fontSize: 14.5, color: "#FFFFFF" },
 });

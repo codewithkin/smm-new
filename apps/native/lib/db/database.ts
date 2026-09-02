@@ -501,6 +501,21 @@ export const settingsQueries = {
   },
 };
 
+/**
+ * Wipes every row across all app tables so the device returns to a fresh
+ * out-of-box state (used by "Clear all data" in Settings). Schema and
+ * seed-if-empty re-run on next open, so the till is immediately setup-ready.
+ */
+export async function clearAllData(db: SQLiteDatabase): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    await db.execAsync("DELETE FROM sale_lines");
+    await db.execAsync("DELETE FROM sales");
+    await db.execAsync("DELETE FROM stock_movements");
+    await db.execAsync("DELETE FROM products");
+    await db.execAsync("DELETE FROM settings");
+  });
+}
+
 /* ----------------------------------- Seed ----------------------------------- */
 
 async function seedIfEmpty(db: SQLiteDatabase) {
