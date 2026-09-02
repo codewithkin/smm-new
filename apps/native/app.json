@@ -2,6 +2,7 @@
   "expo": {
     "name": "smart-switch-mobile",
     "slug": "smart-switch-mobile",
+    "owner": "codewithkin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -45,6 +46,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5e7da29a-29a6-4c32-978e-ca11eeadc744"
+      }
     }
   }
 }
