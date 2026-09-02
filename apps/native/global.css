@@ -1,3 +1,31 @@
 @import "tailwindcss";
 @import "uniwind";
 @import "heroui-native/styles";
+
+/* ---- Design-system tokens (Smart Switch Mobile POS) ---- */
+@theme {
+  /* Brand / accent blues */
+  --color-brand: oklch(0.42 0.15 258);
+  --color-brand-foreground: oklch(1 0 0);
+  --color-accent-brand: oklch(0.55 0.18 258);
+
+  /* Text */
+  --color-ink: oklch(0.28 0.02 262);
+  --color-ink-soft: oklch(0.52 0.015 262);
+  --color-ink-muted: oklch(0.6 0.015 262);
+  --color-ink-faint: oklch(0.62 0.015 262);
+
+  /* Backgrounds */
+  --color-panel: oklch(0.985 0.004 258);
+  --color-app: oklch(0.955 0.008 255);
+
+  /* Fonts */
+  --font-display: "BricolageGrotesque-Bold", sans-serif;
+  --font-display-black: "BricolageGrotesque-ExtraBold", sans-serif;
+  --font-sans: "PlusJakartaSans-Regular", system-ui, sans-serif;
+  --font-sans-medium: "PlusJakartaSans-Medium", system-ui, sans-serif;
+  --font-sans-semibold: "PlusJakartaSans-SemiBold", system-ui, sans-serif;
+  --font-sans-bold: "PlusJakartaSans-Bold", system-ui, sans-serif;
+  --font-mono: "JetBrainsMono-Regular", monospace;
+  --font-mono-medium: "JetBrainsMono-Medium", monospace;
+}

@@ -13,6 +13,7 @@ import type {
   StockMovementView,
   StockStatus,
   Product,
+  TillOperator,
 } from "@/lib/types";
 
 type Row = Record<string, any>;
@@ -446,6 +447,42 @@ function rowToSale(row: Row): Sale {
     createdAt: Number(row.created_at),
   };
 }
+
+/* ---------------------------------- Settings --------------------------------- */
+
+const SETTINGS_OPERATOR_NAME = "till.operator.name";
+
+/** Derives the short receipt form of a name, e.g. "Tanaka Moyo" -> "Tanaka M.". */
+export function shortName(full: string): string {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  const [first, ...rest] = parts;
+  if (rest.length === 0) return first;
+  return `${first} ${rest.map((p) => `${p[0].toUpperCase()}.`).join(" ")}`;
+}
+
+export const settingsQueries = {
+  async getOperator(db: SQLiteDatabase): Promise<TillOperator | null> {
+    const row = await db.getFirstAsync<Row>(
+      "SELECT value FROM settings WHERE key = ?",
+      SETTINGS_OPERATOR_NAME,
+    );
+    const name = row?.value ? String(row.value) : "";
+    if (!name) return null;
+    return { name, shortName: shortName(name) };
+  },
+
+  async setOperator(db: SQLiteDatabase, name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    await db.runAsync(
+      `INSERT INTO settings (key, value) VALUES (?, ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+      SETTINGS_OPERATOR_NAME,
+      trimmed,
+    );
+  },
+};
 
 /* ----------------------------------- Seed ----------------------------------- */
 

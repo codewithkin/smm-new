@@ -4,6 +4,9 @@ import { ScrollView, View, type ScrollViewProps, type ViewProps } from "react-na
 import Animated, { type AnimatedProps } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useAppTheme } from "@/contexts/app-theme-context";
+import { tokens } from "@/lib/theme";
+
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 type Props = AnimatedProps<ViewProps> & {
@@ -20,13 +23,13 @@ export function Container({
   ...props
 }: PropsWithChildren<Props>) {
   const insets = useSafeAreaInsets();
+  const { isDark } = useAppTheme();
+  const background = isDark ? "#0F1214" : tokens.color.app;
 
   return (
     <AnimatedView
-      className={cn("flex-1 bg-background", className)}
-      style={{
-        paddingBottom: insets.bottom,
-      }}
+      className={cn("flex-1", className)}
+      style={{ backgroundColor: background, paddingBottom: insets.bottom }}
       {...props}
     >
       {isScrollable ? (

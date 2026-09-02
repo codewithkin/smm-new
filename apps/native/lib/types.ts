@@ -1,3 +1,11 @@
+/** The person operating the till; captured on first run and shown on receipts. */
+export type TillOperator = {
+  /** Full display name (e.g. "Tanaka Moyo"). */
+  name: string;
+  /** Short form used on receipts when the full name is too long (e.g. "Tanaka M."). */
+  shortName: string;
+};
+
 export type Category = "smartphone" | "audio-device" | "accessory";
 
 export type Product = {

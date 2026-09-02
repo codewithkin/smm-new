@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Button, Chip, Input, Spinner, useThemeColor } from "heroui-native";
+import { Button, Chip, Input, Spinner } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 
@@ -8,13 +8,14 @@ import { useCart } from "@/contexts/cart-context";
 import { useDatabase } from "@/contexts/database-context";
 import { productQueries } from "@/lib/db/database";
 import { CATEGORY_META, CATEGORIES, formatCurrency } from "@/lib/format";
+import { tokens } from "@/lib/theme";
 import type { Category, Product } from "@/lib/types";
 
 export default function PointOfSale() {
   const { db, isReady } = useDatabase();
   const { add, itemCount, subtotal } = useCart();
-  const accentColor = useThemeColor("accent");
-  const accentForegroundColor = useThemeColor("accent-foreground");
+  const accentColor = tokens.color.accentBrand;
+  const accentForegroundColor = "#fff";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState("");
@@ -118,12 +119,15 @@ export default function PointOfSale() {
           )}
 
           {itemCount > 0 && (
-            <View className="absolute bottom-0 left-0 right-0 border-t border-border bg-background px-4 py-3">
+            <View
+              style={{ backgroundColor: tokens.color.panel }}
+              className="absolute bottom-0 left-0 right-0 border-t border-border px-4 py-3"
+            >
               <View className="flex-row items-center justify-between">
-                <Text className="text-muted text-sm">
+                <Text className="text-sm" style={{ color: tokens.color.inkMuted }}>
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </Text>
-                <Text className="text-lg font-semibold text-foreground">
+                <Text className="text-lg font-semibold" style={{ color: tokens.color.ink }}>
                   {formatCurrency(subtotal)}
                 </Text>
               </View>
@@ -140,14 +144,15 @@ export default function PointOfSale() {
 }
 
 function ProductCard({ product, onPress }: { product: Product; onPress: () => void }) {
-  const accentColor = useThemeColor("accent");
+  const accentColor = tokens.color.accentBrand;
   const sellable = product.stock > 0;
 
   return (
     <Pressable
       onPress={onPress}
       disabled={!sellable}
-      className={`flex-1 bg-surface-secondary rounded-xl p-3 ${sellable ? "" : "opacity-50"}`}
+      className={`flex-1 rounded-xl p-3 ${sellable ? "" : "opacity-50"}`}
+      style={{ backgroundColor: tokens.color.panel }}
     >
       <View className="flex-row items-center justify-between">
         <Ionicons
@@ -157,11 +162,11 @@ function ProductCard({ product, onPress }: { product: Product; onPress: () => vo
         />
         {!sellable && <Text className="text-xs text-danger">Out</Text>}
       </View>
-      <Text className="mt-2 text-foreground font-medium leading-5" numberOfLines={2}>
+      <Text style={{ color: tokens.color.ink }} className="mt-2 font-medium leading-5" numberOfLines={2}>
         {product.name}
       </Text>
       <Text className="text-xs text-muted mt-0.5">{product.sku}</Text>
-      <Text className="mt-2 text-foreground font-semibold">
+      <Text style={{ color: tokens.color.ink }} className="mt-2 font-semibold">
         {formatCurrency(product.price)}
       </Text>
     </Pressable>

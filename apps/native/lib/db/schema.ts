@@ -47,4 +47,10 @@ CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(produc
 CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sale_lines_sale_id ON sale_lines(sale_id);
 CREATE INDEX IF NOT EXISTS idx_products_active ON products(active);
+
+-- App-level key/value settings (e.g. the till operator name).
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
 `;
