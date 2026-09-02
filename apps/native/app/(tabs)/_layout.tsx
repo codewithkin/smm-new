@@ -3,6 +3,7 @@ import { View } from "react-native";
 
 import { AppTabBar } from "@/components/nav/app-tab-bar";
 import { NavDrawer } from "@/components/nav/nav-drawer";
+import { NavRail } from "@/components/nav/nav-rail";
 import { NavChromeProvider } from "@/contexts/nav-chrome-context";
 
 export default function TabLayout() {
@@ -17,6 +18,7 @@ export default function TabLayout() {
           <Tabs.Screen name="sales" options={{ title: "Sales" }} />
           <Tabs.Screen name="products" options={{ title: "Products" }} />
         </Tabs>
+        <NavRail />
         <NavDrawer />
       </View>
     </NavChromeProvider>
