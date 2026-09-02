@@ -10,6 +10,7 @@ import { saleQueries, settingsQueries } from "@/lib/db/database";
 import { formatCurrency, formatDate, paymentLabel, receiptId } from "@/lib/format";
 import {
   describePrinterError,
+  ensurePrinterPermission,
   findPrinters,
   getPrinterAddress,
   printSaleReceipt,
@@ -61,6 +62,20 @@ export default function ReceiptScreen() {
 
   const newSale = () => router.replace("/(tabs)");
 
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      newSale();
+    }
+  };
+
+  const backButton = (
+    <PressableScale onPress={goBack} style={styles.backButton}>
+      <Ionicons name="arrow-back" size={20} color={tokens.color.inkStrong} />
+    </PressableScale>
+  );
+
   const receiptText = useCallback(() => {
     if (!sale) return "";
     const lines = sale.lines
@@ -84,6 +99,7 @@ export default function ReceiptScreen() {
   const openPrinterPicker = useCallback(async () => {
     setPrinterNotice(null);
     try {
+      await ensurePrinterPermission();
       const found = await findPrinters();
       setPrinters(found);
       setPrinterOpen(true);
@@ -259,6 +275,7 @@ export default function ReceiptScreen() {
     return (
       <View style={styles.scrim}>
         <View style={styles.dialog}>
+          {backButton}
           {successHeader}
           <ScrollView style={{ maxHeight: 460 }} contentContainerStyle={{ paddingHorizontal: 30 }} showsVerticalScrollIndicator={false}>
             {body}
@@ -272,6 +289,7 @@ export default function ReceiptScreen() {
 
   return (
     <View style={[styles.phoneRoot, { paddingTop: insets.top }]}>
+      {backButton}
       {successHeader}
       <ScrollView
         style={{ flex: 1 }}
@@ -325,6 +343,26 @@ function TotRow({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   center: { padding: 40, alignItems: "center" },
   muted: { fontFamily: tokens.font.sans, color: tokens.color.inkMuted },
+
+  backButton: {
+    position: "absolute",
+    top: 14,
+    left: 14,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: tokens.color.surface,
+    borderWidth: 1,
+    borderColor: tokens.color.borderMuted,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#1B2A44",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
 
   scrim: {
     flex: 1,
