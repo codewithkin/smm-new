@@ -20,12 +20,16 @@ import { useCart } from "@/contexts/cart-context";
 import { useDatabase } from "@/contexts/database-context";
 import { productQueries } from "@/lib/db/database";
 import { CATEGORIES, CATEGORY_META, formatCurrency } from "@/lib/format";
-import { useIsTablet } from "@/lib/responsive";
+import { useIsTablet, useIsTabletPortrait } from "@/lib/responsive";
 import { tokens } from "@/lib/theme";
 import type { Category, Product } from "@/lib/types";
 
 export default function PointOfSale() {
   const isTablet = useIsTablet();
+  const tabletPortrait = useIsTabletPortrait();
+  // Tablet in portrait hides the wide cart pane (like the phone layout) so the
+  // grid gets the full width and can keep 4 columns without cramping.
+  const showCartPane = isTablet && !tabletPortrait;
   const router = useRouter();
   const { db, isReady } = useDatabase();
   const { add, lines, itemCount, subtotal } = useCart();
@@ -91,8 +95,8 @@ export default function PointOfSale() {
       columnWrapperStyle={{ gap }}
       contentContainerStyle={{
         gap,
-        paddingBottom: isTablet ? 4 : 132,
-        paddingHorizontal: isTablet ? 0 : 16,
+        paddingBottom: showCartPane ? 4 : 132,
+        paddingHorizontal: showCartPane ? 0 : 16,
       }}
       ListEmptyComponent={
         loading ? null : (
@@ -164,7 +168,7 @@ export default function PointOfSale() {
     );
   }
 
-  if (isTablet) {
+  if (showCartPane) {
     return (
       <ScreenScaffold title="Point of Sale">
         <View style={styles.tabletBody}>

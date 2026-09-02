@@ -16,6 +16,16 @@ export function useIsTablet(): boolean {
   return width >= TABLET_MIN_WIDTH;
 }
 
+/**
+ * True when the window is a tablet width but held in portrait (height > width).
+ * In this orientation the wide two-pane layout is too cramped, so screens can
+ * fall back to the phone-style stacked layout while keeping the larger grid.
+ */
+export function useIsTabletPortrait(): boolean {
+  const { width, height } = useWindowDimensions();
+  return width >= TABLET_MIN_WIDTH && height > width;
+}
+
 /** Initials (max 2) from a display name, e.g. "Tanaka Moyo" -> "TM". */
 export function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
