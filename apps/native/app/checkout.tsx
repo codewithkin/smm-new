@@ -72,9 +72,12 @@ export default function CheckoutScreen() {
     setError(null);
     const res = await checkout(db, { lines, discount, paymentMethod: method });
     setCharging(false);
-    if (res.ok) {
+    if (res.ok && res.saleId != null) {
       clear();
-      router.back();
+      router.replace({
+        pathname: "/sale/[id]",
+        params: { id: String(res.saleId), tendered: isCash ? String(tenderNum) : "" },
+      });
     } else {
       setError(res.error ?? "Could not complete the sale");
     }

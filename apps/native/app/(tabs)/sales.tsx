@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -36,7 +36,13 @@ function payBadge(method: PaymentMethod): { bg: string; fg: string } {
 
 export default function SalesScreen() {
   const isTablet = useIsTablet();
+  const router = useRouter();
   const { db, isReady } = useDatabase();
+
+  const openReceipt = useCallback(
+    (id: number) => router.push({ pathname: "/sale/[id]", params: { id: String(id) } }),
+    [router],
+  );
 
   const [sales, setSales] = useState<SaleListItem[]>([]);
   const [summary, setSummary] = useState({ count: 0, revenue: 0, itemsSold: 0 });
@@ -151,9 +157,13 @@ export default function SalesScreen() {
           {!loading && <Text style={styles.emptySub}>Completed sales will appear here</Text>}
         </View>
       ) : isTablet ? (
-        filtered.map((s, i) => <SaleTableRow key={s.id} sale={s} last={i === filtered.length - 1} />)
+        filtered.map((s, i) => (
+          <SaleTableRow key={s.id} sale={s} last={i === filtered.length - 1} onPress={() => openReceipt(s.id)} />
+        ))
       ) : (
-        filtered.map((s, i) => <SalePhoneRow key={s.id} sale={s} last={i === filtered.length - 1} />)
+        filtered.map((s, i) => (
+          <SalePhoneRow key={s.id} sale={s} last={i === filtered.length - 1} onPress={() => openReceipt(s.id)} />
+        ))
       )}
     </View>
   );
@@ -270,9 +280,9 @@ function PayBadge({ method }: { method: PaymentMethod }) {
   );
 }
 
-function SaleTableRow({ sale, last }: { sale: SaleListItem; last: boolean }) {
+function SaleTableRow({ sale, last, onPress }: { sale: SaleListItem; last: boolean; onPress: () => void }) {
   return (
-    <View style={[styles.rowGrid, styles.tableRow, last && { borderBottomWidth: 0 }]}>
+    <PressableScale onPress={onPress} style={[styles.rowGrid, styles.tableRow, last && { borderBottomWidth: 0 }]}>
       <Text style={[styles.cellMono, styles.colReceipt]}>{receiptId(sale.id, sale.createdAt)}</Text>
       <Text style={[styles.cell, styles.colTime]}>{formatTime(sale.createdAt)}</Text>
       <Text style={[styles.cell, styles.colItems]}>
@@ -285,13 +295,13 @@ function SaleTableRow({ sale, last }: { sale: SaleListItem; last: boolean }) {
         {new Date(sale.createdAt).toLocaleDateString([], { day: "numeric", month: "short" })}
       </Text>
       <Text style={[styles.cellTotal, styles.colTotal]}>{formatCurrency(sale.total)}</Text>
-    </View>
+    </PressableScale>
   );
 }
 
-function SalePhoneRow({ sale, last }: { sale: SaleListItem; last: boolean }) {
+function SalePhoneRow({ sale, last, onPress }: { sale: SaleListItem; last: boolean; onPress: () => void }) {
   return (
-    <View style={[styles.phoneRow, last && { borderBottomWidth: 0 }]}>
+    <PressableScale onPress={onPress} style={[styles.phoneRow, last && { borderBottomWidth: 0 }]}>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={styles.cellMono}>{receiptId(sale.id, sale.createdAt)}</Text>
         <Text style={styles.phoneSub}>
@@ -300,7 +310,7 @@ function SalePhoneRow({ sale, last }: { sale: SaleListItem; last: boolean }) {
         </Text>
       </View>
       <Text style={styles.phoneTotal}>{formatCurrency(sale.total)}</Text>
-    </View>
+    </PressableScale>
   );
 }
 

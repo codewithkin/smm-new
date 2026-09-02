@@ -27,6 +27,10 @@ function StackLayout() {
         name="checkout"
         options={{ presentation: "transparentModal", animation: "slide_from_bottom" }}
       />
+      <Stack.Screen
+        name="sale/[id]"
+        options={{ presentation: "transparentModal", animation: "fade" }}
+      />
     </Stack>
   );
 }
