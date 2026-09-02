@@ -19,7 +19,8 @@
         "backgroundColor": "#FFFFFF"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.smartswitchmobile"
+      "package": "com.anonymous.smartswitchmobile",
+      "versionCode": 2
     },
     "web": {
       "bundler": "metro",

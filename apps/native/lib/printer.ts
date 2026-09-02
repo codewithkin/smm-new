@@ -9,6 +9,8 @@ import ThermalPrinter, {
   type PrinterOptions,
 } from "react-native-thermal-printer-driver";
 
+import { PermissionsAndroid, Platform } from "react-native";
+
 import { formatCurrency, formatDate, paymentLabel, receiptId } from "@/lib/format";
 import type { SaleDetail } from "@/lib/types";
 
@@ -61,21 +63,29 @@ export async function findPrinters(): Promise<Device[]> {
 }
 
 /**
- * Proactively trigger the Bluetooth runtime permission dialog (Android 12+).
- * There is no standalone permission API on the native module, so we kick off a
- * scan (which asks for the permission) and immediately stop it. Safe to call at
- * app launch and again before printing.
+ * Android 12+ treats BLUETOOTH_SCAN and BLUETOOTH_CONNECT as runtime ("dangerous")
+ * permissions: the OS only grants them after the app shows the "Nearby devices"
+ * dialog. The thermal-printer native module declares but never requests them, so we
+ * request them here with React Native's PermissionsAndroid to surface the dialog.
+ *
+ * The manifest already declares these via the config plugin, so requestMultiple is
+ * safe to call at app launch and again before printing. On iOS (and Android < 12)
+ * there is nothing to request.
  */
-export async function ensurePrinterPermission(): Promise<void> {
+export async function ensurePrinterPermission(): Promise<boolean> {
+  if (Platform.OS !== "android") {
+    return true;
+  }
   try {
-    const scan = ThermalPrinter.scan();
-    // Stop after a short delay so discovery doesn't run forever in the background.
-    setTimeout(() => {
-      void ThermalPrinter.stopScan().catch(() => {});
-    }, 500);
-    await scan.catch(() => {});
+    const granted = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    ]);
+    return Object.values(granted).every(
+      (status) => status === PermissionsAndroid.RESULTS.GRANTED,
+    );
   } catch {
-    // Permission denied or unsupported — ignore; printing will surface a clear error.
+    return false;
   }
 }
 
