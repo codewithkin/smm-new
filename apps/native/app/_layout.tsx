@@ -10,7 +10,7 @@ import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { CartProvider } from "@/contexts/cart-context";
 import { DatabaseProvider } from "@/contexts/database-context";
 import { useLoadedFonts } from "@/lib/fonts";
-import { ensurePrinterPermission } from "@/lib/printer";
+import { ensurePrinterPermission, getLastPrinter } from "@/lib/printer";
 
 // Keep the splash visible until fonts have loaded.
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -53,7 +53,7 @@ export default function Layout() {
 
   // Ask for Bluetooth permission up front so thermal printing works later.
   useEffect(() => {
-    void ensurePrinterPermission();
+    void ensurePrinterPermission().then(() => getLastPrinter());
   }, []);
 
   return (

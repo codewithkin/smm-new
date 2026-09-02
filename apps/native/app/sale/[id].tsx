@@ -11,10 +11,10 @@ import { formatCurrency, formatDate, paymentLabel, receiptId } from "@/lib/forma
 import {
   describePrinterError,
   ensurePrinterPermission,
-  findPrinters,
   getPrinterAddress,
   printSaleReceipt,
   resetPrinterAddress,
+  scanPrinters,
   type Device,
 } from "@/lib/printer";
 import { useIsTablet } from "@/lib/responsive";
@@ -100,8 +100,12 @@ export default function ReceiptScreen() {
     setPrinterNotice(null);
     try {
       await ensurePrinterPermission();
-      const found = await findPrinters();
-      setPrinters(found);
+      const result = await scanPrinters();
+      if (!result.ok) {
+        setPrinterNotice(result.error.message);
+      } else {
+        setPrinters(result.data);
+      }
       setPrinterOpen(true);
     } catch (error) {
       setPrinterNotice(describePrinterError(error));
