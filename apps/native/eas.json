@@ -14,7 +14,13 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/smart_switch"
+      }
     }
   },
   "submit": {
