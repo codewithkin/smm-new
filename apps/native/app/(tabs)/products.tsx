@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,8 +32,19 @@ function stateBadge(s: StockState): { bg: string; fg: string; label: string } {
 
 export default function ProductsScreen() {
   const isTablet = useIsTablet();
+  const router = useRouter();
   const { db, isReady } = useDatabase();
   const insets = useSafeAreaInsets();
+
+  const openForm = useCallback(
+    (productId?: number) =>
+      router.push(
+        productId != null
+          ? { pathname: "/product-form", params: { id: String(productId) } }
+          : "/product-form",
+      ),
+    [router],
+  );
 
   const [products, setProducts] = useState<Product[]>([]);
   const [summary, setSummary] = useState({ totalUnits: 0, stockValue: 0, outOfStock: 0, lowStock: 0 });
@@ -136,9 +147,13 @@ export default function ProductsScreen() {
           <Text style={styles.emptyText}>{loading ? "Loading products…" : "No products found"}</Text>
         </View>
       ) : isTablet ? (
-        filtered.map((p, i) => <ProductTableRow key={p.id} product={p} last={i === filtered.length - 1} />)
+        filtered.map((p, i) => (
+          <ProductTableRow key={p.id} product={p} last={i === filtered.length - 1} onPress={() => openForm(p.id)} />
+        ))
       ) : (
-        filtered.map((p, i) => <ProductPhoneRow key={p.id} product={p} last={i === filtered.length - 1} />)
+        filtered.map((p, i) => (
+          <ProductPhoneRow key={p.id} product={p} last={i === filtered.length - 1} onPress={() => openForm(p.id)} />
+        ))
       )}
     </View>
   );
@@ -155,7 +170,7 @@ export default function ProductsScreen() {
 
   if (isTablet) {
     return (
-      <ScreenScaffold title="Products" subtitle={subtitle} headerRight={<AddButton onPress={() => {}} />}>
+      <ScreenScaffold title="Products" subtitle={subtitle} headerRight={<AddButton onPress={() => openForm()} />}>
         <View style={{ flex: 1, gap: 12, minHeight: 0 }}>
           {searchBar}
           {overview}
@@ -180,7 +195,7 @@ export default function ProductsScreen() {
         >
           {list}
         </ScrollView>
-        <PressableScale onPress={() => {}} style={[styles.fab, { bottom: 20 + insets.bottom }]}>
+        <PressableScale onPress={() => openForm()} style={[styles.fab, { bottom: 20 + insets.bottom }]}>
           <Ionicons name="add" size={28} color={tokens.color.accentForeground} />
         </PressableScale>
       </View>
@@ -243,10 +258,10 @@ function StatusBadge({ state }: { state: StockState }) {
   );
 }
 
-function ProductTableRow({ product, last }: { product: Product; last: boolean }) {
+function ProductTableRow({ product, last, onPress }: { product: Product; last: boolean; onPress: () => void }) {
   const state = stateOf(product);
   return (
-    <View style={[styles.rowGrid, styles.tableRow, state === "low" && { backgroundColor: LOW_ROW_TINT }, last && { borderBottomWidth: 0 }]}>
+    <PressableScale onPress={onPress} style={[styles.rowGrid, styles.tableRow, state === "low" && { backgroundColor: LOW_ROW_TINT }, last && { borderBottomWidth: 0 }]}>
       <View style={[styles.colProduct, styles.productCell]}>
         <Thumb category={product.category} size={34} />
         <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
@@ -259,14 +274,14 @@ function ProductTableRow({ product, last }: { product: Product; last: boolean })
       <View style={[styles.colStatus, { alignItems: "flex-end" }]}>
         <StatusBadge state={state} />
       </View>
-    </View>
+    </PressableScale>
   );
 }
 
-function ProductPhoneRow({ product, last }: { product: Product; last: boolean }) {
+function ProductPhoneRow({ product, last, onPress }: { product: Product; last: boolean; onPress: () => void }) {
   const state = stateOf(product);
   return (
-    <View style={[styles.phoneRow, state === "low" && { backgroundColor: LOW_ROW_TINT }, last && { borderBottomWidth: 0 }]}>
+    <PressableScale onPress={onPress} style={[styles.phoneRow, state === "low" && { backgroundColor: LOW_ROW_TINT }, last && { borderBottomWidth: 0 }]}>
       <Thumb category={product.category} size={40} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
@@ -276,7 +291,7 @@ function ProductPhoneRow({ product, last }: { product: Product; last: boolean })
         <Text style={styles.cellPrice}>{formatCurrency(product.price)}</Text>
         <StatusBadge state={state} />
       </View>
-    </View>
+    </PressableScale>
   );
 }
 

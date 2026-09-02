@@ -31,6 +31,10 @@ function StackLayout() {
         name="sale/[id]"
         options={{ presentation: "transparentModal", animation: "fade" }}
       />
+      <Stack.Screen
+        name="product-form"
+        options={{ presentation: "transparentModal", animation: "slide_from_bottom" }}
+      />
     </Stack>
   );
 }
