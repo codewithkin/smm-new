@@ -4,7 +4,7 @@
     "slug": "smart-switch-mobile",
     "owner": "codewithkin",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "ico": "./assets/images/favicon.png",
     "scheme": "smart-switch-mobile",
