@@ -147,10 +147,9 @@ const styles = StyleSheet.create({
     color: tokens.color.inkFaint,
   },
   footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 6,
     borderTopWidth: 1,
     borderTopColor: tokens.color.surfaceMuted,
   },

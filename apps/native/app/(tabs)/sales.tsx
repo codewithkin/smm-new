@@ -239,9 +239,14 @@ function RevenueHero({
         </View>
       </View>
       <Text style={[styles.heroValue, { fontSize: tablet ? 42 : 36 }]}>{formatCurrency(revenue)}</Text>
-      <Text style={styles.heroSplit}>
-        Cash {formatCurrency(cash)} · Mobile money {formatCurrency(mobile)}
-      </Text>
+      <View style={styles.heroSplit}>
+        <Text style={styles.heroSplitRow} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          Cash {formatCurrency(cash)}
+        </Text>
+        <Text style={styles.heroSplitRow} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          Mobile money {formatCurrency(mobile)}
+        </Text>
+      </View>
       <View style={[styles.bars, { marginTop: tablet ? 12 : 12 }]}>
         {bars.map((h, i) => (
           <View
@@ -261,7 +266,7 @@ function StatCard({ label, value, foot }: { label: string; value: string; foot: 
   return (
     <View style={styles.statCard}>
       <Text style={styles.statLabel}>{label}</Text>
-      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text>
       <Text style={styles.statFoot}>{foot}</Text>
     </View>
   );
@@ -356,7 +361,8 @@ const styles = StyleSheet.create({
     color: "#fff",
     letterSpacing: -1.4,
   },
-  heroSplit: { marginTop: 6, fontFamily: tokens.font.sans, fontSize: 12, color: "rgba(255,255,255,0.7)" },
+  heroSplit: { marginTop: 6, gap: 2 },
+  heroSplitRow: { fontFamily: tokens.font.sans, fontSize: 12, color: "rgba(255,255,255,0.7)" },
   bars: { flexDirection: "row", alignItems: "flex-end", gap: 8, height: 44 },
   bar: { width: 12, borderRadius: 4 },
 

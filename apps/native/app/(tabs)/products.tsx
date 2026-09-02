@@ -229,7 +229,7 @@ function OverviewCard({ tone, label, value, foot }: { tone: "accent" | "plain" |
   return (
     <View style={[styles.ovCard, toneStyle]}>
       <Text style={[styles.ovLabel, { color: labelColor }]}>{label}</Text>
-      <Text style={[styles.ovValue, { color: valueColor }]}>{value}</Text>
+      <Text style={[styles.ovValue, { color: valueColor }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text>
       <Text style={[styles.ovFoot, { color: footColor }]}>{foot}</Text>
     </View>
   );
@@ -273,9 +273,9 @@ function ProductTableRow({ product, last, onPress }: { product: Product; last: b
       </View>
       <Text style={[styles.cellMono, styles.colSku]}>{product.sku}</Text>
       <Text style={[styles.cell, styles.colCat]}>{CATEGORY_META[product.category].label}</Text>
-      <Text style={[styles.cellPrice, styles.colNum]}>{formatCurrency(product.price)}</Text>
-      <Text style={[styles.cellCost, styles.colNum]}>{formatCurrency(product.cost)}</Text>
-      <Text style={[styles.cellOnHand, styles.colNum]}>{product.stock}</Text>
+      <Text style={[styles.cellPrice, styles.colNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{formatCurrency(product.price)}</Text>
+      <Text style={[styles.cellCost, styles.colNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{formatCurrency(product.cost)}</Text>
+      <Text style={[styles.cellOnHand, styles.colNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{product.stock}</Text>
       <View style={[styles.colStatus, { alignItems: "flex-end" }]}>
         <StatusBadge state={state} />
       </View>
