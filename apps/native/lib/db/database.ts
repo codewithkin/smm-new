@@ -5,6 +5,7 @@ import type {
   Sale,
   SaleDetail,
   SaleLine,
+  SaleListItem,
   CartLine,
   Category,
   PaymentMethod,
@@ -393,6 +394,22 @@ export const saleQueries = {
       limit,
     );
     return rows.map(rowToSale);
+  },
+
+  /** Sales newest-first, each with its total item count (for history lists). */
+  async listWithItemCounts(
+    db: SQLiteDatabase,
+    limit = 100,
+  ): Promise<SaleListItem[]> {
+    const rows = await db.getAllAsync<Row>(
+      `SELECT s.*,
+         COALESCE((SELECT SUM(quantity) FROM sale_lines sl WHERE sl.sale_id = s.id), 0) AS item_count
+       FROM sales s
+       ORDER BY s.created_at DESC
+       LIMIT ?`,
+      limit,
+    );
+    return rows.map((row) => ({ ...rowToSale(row), itemCount: Number(row.item_count) }));
   },
 
   async getById(db: SQLiteDatabase, id: number): Promise<SaleDetail | null> {

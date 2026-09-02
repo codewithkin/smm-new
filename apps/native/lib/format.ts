@@ -19,6 +19,16 @@ export function formatDate(ts: number): string {
   });
 }
 
+/** Clock time only, e.g. "2:12 PM". */
+export function formatTime(ts: number): string {
+  return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+/** Human receipt reference for a sale, e.g. "RCP-2026-0007". */
+export function receiptId(id: number, createdAt: number): string {
+  return `RCP-${new Date(createdAt).getFullYear()}-${String(id).padStart(4, "0")}`;
+}
+
 export const CATEGORY_META: Record<
   Category,
   { label: string; short: string; icon: string }

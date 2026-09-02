@@ -67,6 +67,11 @@ export type SaleDetail = Sale & {
   lines: SaleLine[];
 };
 
+/** A sale row for history lists, with its total item count precomputed. */
+export type SaleListItem = Sale & {
+  itemCount: number;
+};
+
 /* ----------------------------- Stock management ----------------------------- */
 
 /**
