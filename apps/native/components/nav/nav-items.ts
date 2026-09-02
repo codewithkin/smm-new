@@ -20,10 +20,9 @@ export const PRIMARY_NAV: NavItem[] = [
 
 /**
  * Secondary destinations — shown in the phone drawer and pinned to the bottom
- * of the tablet rail. Stock and Settings are not yet built; they are rendered
- * for parity with the design and currently just close the drawer.
+ * of the tablet rail. Settings lives here; Stock is reached from the Products
+ * screen's "Stock" entry, so it is not duplicated as a top-level destination.
  */
 export const SECONDARY_NAV: NavItem[] = [
-  { key: "stock", label: "Stock", icon: "cube-outline", route: "/(tabs)/products" },
   { key: "settings", label: "Settings", icon: "settings-outline", route: "/settings" },
 ];

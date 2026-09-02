@@ -74,9 +74,14 @@ export function AppHeader({ title, subtitle, right }: Props) {
       <Pressable onPress={openDrawer} hitSlop={10} style={styles.hamburger}>
         <Ionicons name="menu" size={26} color={tokens.color.inkStrong} />
       </Pressable>
+      <View style={styles.brandMarkPhone}>
+        <Text style={styles.brandMarkPhoneText}>S</Text>
+      </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={styles.titlePhone}>{title}</Text>
-        <Text style={styles.subPhone}>{subtitle ?? "Till 01 · Offline ready"}</Text>
+        <Text style={styles.subPhone} numberOfLines={1}>
+          {subtitle ?? "Smart Switch Mobile · Till 01 · Offline ready"}
+        </Text>
       </View>
       {right}
     </View>
@@ -183,6 +188,20 @@ const styles = StyleSheet.create({
   hamburger: {
     paddingVertical: 6,
     paddingRight: 2,
+  },
+  brandMarkPhone: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: tokens.color.accentBrand,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  brandMarkPhoneText: {
+    fontFamily: tokens.font.displayBlack,
+    fontSize: 15,
+    color: tokens.color.brandForeground,
+    letterSpacing: -0.3,
   },
   titlePhone: {
     fontFamily: tokens.font.display,

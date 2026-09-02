@@ -36,7 +36,12 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
         return (
           <Pressable key={item.key} onPress={() => go(item.key)} style={[styles.bottomItem, active && styles.itemActive]}>
             <Ionicons name={item.icon} size={20} color={active ? tokens.color.brandDark : tokens.color.inkSoft} />
-            <Text style={[styles.bottomLabel, { color: active ? tokens.color.brandDark : tokens.color.inkSoft }]}>
+            <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              style={[styles.bottomLabel, { color: active ? tokens.color.brandDark : tokens.color.inkSoft }]}
+            >
               {item.label}
             </Text>
           </Pressable>

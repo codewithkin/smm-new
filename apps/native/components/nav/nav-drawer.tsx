@@ -50,7 +50,7 @@ export function NavDrawer() {
 
         <View style={styles.group}>
           {SECONDARY_NAV.map((item) => (
-            <DrawerItem key={item.key} item={item} active={false} onPress={() => navigate(item.route)} />
+            <DrawerItem key={item.key} item={item} active={activeKey === item.key} onPress={() => navigate(item.route)} />
           ))}
         </View>
 

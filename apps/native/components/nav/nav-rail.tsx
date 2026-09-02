@@ -55,7 +55,14 @@ function RailItem({ item, active, onPress }: { item: NavItem; active: boolean; o
   return (
     <PressableScale onPress={onPress} style={[styles.item, active && styles.itemActive]}>
       <Ionicons name={item.icon} size={22} color={active ? tokens.color.brandDark : tokens.color.inkSoft} />
-      <Text style={[styles.label, { color: active ? tokens.color.brandDark : tokens.color.inkSoft }]}>{item.label}</Text>
+      <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+        style={[styles.label, { color: active ? tokens.color.brandDark : tokens.color.inkSoft }]}
+      >
+        {item.label}
+      </Text>
     </PressableScale>
   );
 }
