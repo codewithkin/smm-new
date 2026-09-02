@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/pos/pressable-scale";
@@ -13,8 +13,6 @@ import { computeChange, computeTotals } from "@/lib/pricing";
 import { useIsTablet } from "@/lib/responsive";
 import { tokens } from "@/lib/theme";
 import type { PaymentMethod } from "@/lib/types";
-
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "Del"];
 
 function draftRef(): string {
   const d = new Date();
@@ -154,16 +152,6 @@ export default function CheckoutScreen() {
     </View>
   );
 
-  const keypad = (
-    <View style={styles.keypad}>
-      {KEYS.map((k) => (
-        <PressableScale key={k} onPress={() => onKey(k)} style={[styles.key, k === "Del" && styles.keyDel]}>
-          <Text style={[styles.keyText, k === "Del" && styles.keyDelText]}>{k}</Text>
-        </PressableScale>
-      ))}
-    </View>
-  );
-
   const quickChips = (
     <View style={styles.chipsRow}>
       <PressableScale onPress={() => setTender(total.toFixed(2))} style={[styles.quickChip, styles.quickIdle]}>
@@ -189,53 +177,72 @@ export default function CheckoutScreen() {
   /* -------------------------------- Tablet -------------------------------- */
   if (isTablet) {
     return (
-      <Pressable style={styles.scrim} onPress={close}>
-        <Pressable style={styles.dialog} onPress={(e) => e.stopPropagation()}>
-          {header}
-          {empty ? (
-            <EmptyState onClose={close} />
-          ) : (
-            <View style={styles.dialogBody}>
-              <View style={{ flex: 1, gap: 18 }}>
-                {totalsCard}
-                {methodGrid}
+      <KeyboardAvoidingView
+        style={styles.scrim}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <Pressable style={styles.scrimFill} onPress={close}>
+          <Pressable style={styles.dialog} onPress={(e) => e.stopPropagation()}>
+            {header}
+            {empty ? (
+              <EmptyState onClose={close} />
+            ) : (
+              <View style={styles.dialogBody}>
+                <View style={{ flex: 1, gap: 18 }}>
+                  {totalsCard}
+                  {methodGrid}
+                  {isCash && (
+                    <View style={styles.changeCard}>
+                      <View>
+                        <Text style={styles.changeLabel}>Change due</Text>
+                        <Text style={styles.changeValue}>{formatCurrency(change)}</Text>
+                      </View>
+                      <View style={{ alignItems: "flex-end" }}>
+                        <Text style={styles.changeLabel}>Tendered</Text>
+                        <Text style={styles.tenderedSmall}>{formatCurrency(tenderNum)}</Text>
+                      </View>
+                    </View>
+                  )}
+                  {!!error && <Text style={styles.error}>{error}</Text>}
+                  {confirmBtn}
+                </View>
+
                 {isCash && (
-                  <View style={styles.changeCard}>
-                    <View>
-                      <Text style={styles.changeLabel}>Change due</Text>
-                      <Text style={styles.changeValue}>{formatCurrency(change)}</Text>
+                  <View style={{ width: 320, gap: 10 }}>
+                    <Text style={styles.sectionLabel}>Amount tendered</Text>
+                    <View style={styles.tenderInputWrap}>
+                      <Text style={styles.tenderDollar}>$</Text>
+                      <TextInput
+                        value={tender}
+                        onChangeText={(t) => {
+                          setError(null);
+                          setTender(t);
+                        }}
+                        keyboardType="decimal-pad"
+                        placeholder="0.00"
+                        placeholderTextColor={tokens.color.inkSubtle}
+                        style={styles.tenderInput}
+                      />
                     </View>
-                    <View style={{ alignItems: "flex-end" }}>
-                      <Text style={styles.changeLabel}>Tendered</Text>
-                      <Text style={styles.tenderedSmall}>{formatCurrency(tenderNum)}</Text>
-                    </View>
+                    {quickChips}
                   </View>
                 )}
-                {!!error && <Text style={styles.error}>{error}</Text>}
-                {confirmBtn}
               </View>
-
-              {isCash && (
-                <View style={{ width: 320, gap: 10 }}>
-                  <Text style={styles.sectionLabel}>Amount tendered</Text>
-                  <View style={styles.tenderDisplay}>
-                    <Text style={styles.tenderDisplayText}>${tender || "0"}</Text>
-                  </View>
-                  {keypad}
-                  {quickChips}
-                </View>
-              )}
-            </View>
-          )}
+            )}
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     );
   }
 
   /* --------------------------------- Phone -------------------------------- */
   return (
-    <View style={[styles.phoneRoot, { paddingTop: insets.top + 8 }]}>
-      <View style={{ paddingHorizontal: 16 }}>{header}</View>
+    <KeyboardAvoidingView
+      style={styles.phoneRoot}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={insets.top + 8}
+    >
+      <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8 }}>{header}</View>
 
       {empty ? (
         <EmptyState onClose={close} />
@@ -248,8 +255,19 @@ export default function CheckoutScreen() {
               <View style={styles.tenderRowPhone}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.sectionLabel}>Tendered</Text>
-                  <View style={styles.tenderDisplayPhone}>
-                    <Text style={styles.tenderDisplayText}>${tender || "0"}</Text>
+                  <View style={styles.tenderInputWrap}>
+                    <Text style={styles.tenderDollar}>$</Text>
+                    <TextInput
+                      value={tender}
+                      onChangeText={(t) => {
+                        setError(null);
+                        setTender(t);
+                      }}
+                      keyboardType="decimal-pad"
+                      placeholder="0.00"
+                      placeholderTextColor={tokens.color.inkSubtle}
+                      style={styles.tenderInput}
+                    />
                   </View>
                 </View>
                 <View style={{ alignItems: "flex-end" }}>
@@ -258,14 +276,13 @@ export default function CheckoutScreen() {
                 </View>
               </View>
             )}
-            {isCash && <View style={{ flex: 1, justifyContent: "flex-end" }}>{keypad}</View>}
             {!!error && <Text style={styles.error}>{error}</Text>}
           </View>
 
           <View style={[styles.phoneFooter, { paddingBottom: insets.bottom + 20 }]}>{confirmBtn}</View>
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -291,6 +308,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
   },
+  scrimFill: { width: "100%", alignItems: "center", justifyContent: "center" },
   dialog: {
     width: 760,
     maxWidth: "100%",
@@ -379,42 +397,25 @@ const styles = StyleSheet.create({
   tenderedSmall: { marginTop: 3, fontFamily: tokens.font.sansBold, fontSize: 17, color: tokens.color.ink },
 
   tenderRowPhone: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12 },
-  tenderDisplay: {
+  tenderInputWrap: {
     height: 56,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: tokens.color.accentBrand,
     backgroundColor: tokens.color.surface,
-    alignItems: "flex-end",
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
   },
-  tenderDisplayPhone: {
-    height: 52,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: tokens.color.accentBrand,
-    backgroundColor: tokens.color.surface,
-    alignItems: "flex-end",
-    justifyContent: "center",
-    paddingHorizontal: 14,
+  tenderDollar: { fontFamily: tokens.font.displayBlack, fontSize: 24, color: tokens.color.ink, marginRight: 8 },
+  tenderInput: {
+    flex: 1,
+    fontFamily: tokens.font.displayBlack,
+    fontSize: 24,
+    color: tokens.color.ink,
+    letterSpacing: -0.8,
+    paddingVertical: 0,
   },
-  tenderDisplayText: { fontFamily: tokens.font.displayBlack, fontSize: 26, color: tokens.color.ink, letterSpacing: -0.8 },
-
-  keypad: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  key: {
-    width: "31.5%",
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: tokens.color.surface,
-    borderWidth: 1,
-    borderColor: tokens.color.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  keyDel: { backgroundColor: tokens.color.surfaceSunken, borderColor: tokens.color.surfaceSunken },
-  keyText: { fontFamily: tokens.font.sansSemiBold, fontSize: 19, color: tokens.color.ink },
-  keyDelText: { fontFamily: tokens.font.sansBold, fontSize: 13.5, color: tokens.color.inkSoft },
 
   chipsRow: { flexDirection: "row", gap: 8 },
   quickChip: { flex: 1, height: 40, borderRadius: 10, alignItems: "center", justifyContent: "center" },
