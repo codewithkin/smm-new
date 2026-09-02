@@ -60,6 +60,25 @@ export async function findPrinters(): Promise<Device[]> {
   return [...paired, ...found];
 }
 
+/**
+ * Proactively trigger the Bluetooth runtime permission dialog (Android 12+).
+ * There is no standalone permission API on the native module, so we kick off a
+ * scan (which asks for the permission) and immediately stop it. Safe to call at
+ * app launch and again before printing.
+ */
+export async function ensurePrinterPermission(): Promise<void> {
+  try {
+    const scan = ThermalPrinter.scan();
+    // Stop after a short delay so discovery doesn't run forever in the background.
+    setTimeout(() => {
+      void ThermalPrinter.stopScan().catch(() => {});
+    }, 500);
+    await scan.catch(() => {});
+  } catch {
+    // Permission denied or unsupported — ignore; printing will surface a clear error.
+  }
+}
+
 /** Align a label and its value across the printable width. */
 function totalRow(label: string, value: string, bold = false): Node {
   return columns([
