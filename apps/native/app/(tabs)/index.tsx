@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -45,9 +45,11 @@ export default function PointOfSale() {
     setLoading(false);
   }, [db, query]);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: all.length };
@@ -84,6 +86,8 @@ export default function PointOfSale() {
       keyExtractor={(item) => String(item.id)}
       numColumns={numColumns}
       showsVerticalScrollIndicator={false}
+      refreshing={loading}
+      onRefresh={refresh}
       columnWrapperStyle={{ gap }}
       contentContainerStyle={{
         gap,

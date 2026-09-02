@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { ScreenScaffold } from "@/components/nav/screen-scaffold";
 import { PressableScale } from "@/components/pos/pressable-scale";
@@ -170,6 +170,10 @@ export default function SalesScreen() {
 
   const subtitle = `Today · ${summary.count} ${summary.count === 1 ? "sale" : "sales"}`;
 
+  const refreshControl = (
+    <RefreshControl refreshing={loading} onRefresh={load} tintColor={tokens.color.brandDark} />
+  );
+
   if (!isReady) {
     return (
       <ScreenScaffold title="Sales" subtitle={subtitle}>
@@ -186,7 +190,7 @@ export default function SalesScreen() {
         <View style={{ flex: 1, gap: 12, minHeight: 0 }}>
           {summaryBlock}
           {filterRow}
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
             {list}
           </ScrollView>
         </View>
@@ -200,6 +204,7 @@ export default function SalesScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24, gap: 14 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={refreshControl}
       >
         {summaryBlock}
         {filterRow}

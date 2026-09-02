@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ScreenScaffold } from "@/components/nav/screen-scaffold";
@@ -89,6 +89,10 @@ export default function ProductsScreen() {
   const activeCount = useMemo(() => products.filter((p) => p.active).length, [products]);
   const subtitle = `${activeCount} active · ${summary.outOfStock} out of stock`;
 
+  const refreshControl = (
+    <RefreshControl refreshing={loading} onRefresh={load} tintColor={tokens.color.brandDark} />
+  );
+
   const searchBar = (
     <View style={[styles.search, isTablet ? styles.searchTablet : styles.searchPhone]}>
       <Ionicons name="search" size={15} color={tokens.color.inkFaint} />
@@ -175,7 +179,7 @@ export default function ProductsScreen() {
           {searchBar}
           {overview}
           {filters}
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
             {list}
           </ScrollView>
         </View>
@@ -192,6 +196,7 @@ export default function ProductsScreen() {
           style={{ flex: 1, marginTop: 12 }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
+          refreshControl={refreshControl}
         >
           {list}
         </ScrollView>
