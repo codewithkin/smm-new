@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,6 +26,7 @@ import type { Category, Product } from "@/lib/types";
 
 export default function PointOfSale() {
   const isTablet = useIsTablet();
+  const router = useRouter();
   const { db, isReady } = useDatabase();
   const { add, lines, itemCount, subtotal } = useCart();
 
@@ -33,7 +34,6 @@ export default function PointOfSale() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!db) return;
@@ -180,17 +180,17 @@ export default function PointOfSale() {
   return (
     <ScreenScaffold
       title="Point of Sale"
-      headerRight={<CartButton count={itemCount} onPress={() => setSheetOpen(true)} />}
+      headerRight={<CartButton count={itemCount} onPress={() => router.push("/checkout")} />}
     >
       <View style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 16 }}>{searchBar}</View>
         <View style={{ marginTop: 12 }}>{filters}</View>
         <View style={{ flex: 1, minHeight: 0, marginTop: 12 }}>{grid}</View>
 
-        {itemCount > 0 && <CartBar count={itemCount} subtotal={subtotal} onPress={() => setSheetOpen(true)} />}
+        {itemCount > 0 && (
+          <CartBar count={itemCount} subtotal={subtotal} onPress={() => router.push("/checkout")} />
+        )}
       </View>
-
-      <CartSheet visible={sheetOpen} onClose={() => setSheetOpen(false)} />
     </ScreenScaffold>
   );
 }
@@ -240,21 +240,6 @@ function CartBar({ count, subtotal, onPress }: { count: number; subtotal: number
         <Text style={styles.cartBarBtnText}>View Cart</Text>
       </PressableScale>
     </View>
-  );
-}
-
-function CartSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const insets = useSafeAreaInsets();
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.sheetScrim} onPress={onClose} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom }]}>
-        <Pressable onPress={onClose} hitSlop={12} style={styles.grabberWrap}>
-          <View style={styles.grabber} />
-        </Pressable>
-        <CartCheckoutPanel large showHeader onCharged={onClose} />
-      </View>
-    </Modal>
   );
 }
 
@@ -388,19 +373,4 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cartBarBtnText: { fontFamily: tokens.font.sansBold, fontSize: 15, color: tokens.color.accentForeground },
-
-  sheetScrim: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(31,37,47,0.45)" },
-  sheet: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: "84%",
-    backgroundColor: tokens.color.surface,
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    overflow: "hidden",
-  },
-  grabberWrap: { alignItems: "center", paddingTop: 10, paddingBottom: 2 },
-  grabber: { width: 42, height: 4, borderRadius: 3, backgroundColor: tokens.color.borderStrong },
 });

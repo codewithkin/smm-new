@@ -23,6 +23,10 @@ function StackLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="first-run" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+        name="checkout"
+        options={{ presentation: "transparentModal", animation: "slide_from_bottom" }}
+      />
     </Stack>
   );
 }
