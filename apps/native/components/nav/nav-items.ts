@@ -25,5 +25,5 @@ export const PRIMARY_NAV: NavItem[] = [
  */
 export const SECONDARY_NAV: NavItem[] = [
   { key: "stock", label: "Stock", icon: "cube-outline", route: "/(tabs)/products" },
-  { key: "settings", label: "Settings", icon: "settings-outline", route: "/(tabs)" },
+  { key: "settings", label: "Settings", icon: "settings-outline", route: "/settings" },
 ];

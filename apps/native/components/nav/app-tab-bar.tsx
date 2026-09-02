@@ -1,5 +1,6 @@
 import type { BottomTabBarProps } from "expo-router/build/react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -19,6 +20,7 @@ const ACCENT_TINT = "#E9F0FC";
 export function AppTabBar({ state, navigation }: BottomTabBarProps) {
   const isTablet = useIsTablet();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const activeName = state.routes[state.index]?.name;
 
   const go = (item: NavItem, routeName: string) => {
@@ -49,7 +51,7 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
           <View style={{ flex: 1 }} />
 
           {SECONDARY_NAV.filter((i) => i.key === "settings").map((item) => (
-            <RailItem key={item.key} item={item} active={false} onPress={() => go(item, "index")} />
+            <RailItem key={item.key} item={item} active={false} onPress={() => router.push(item.route)} />
           ))}
         </View>
       </View>
