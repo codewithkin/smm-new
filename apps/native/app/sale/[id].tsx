@@ -1,14 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import * as Print from "expo-print";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/pos/pressable-scale";
 import { useDatabase } from "@/contexts/database-context";
 import { saleQueries, settingsQueries } from "@/lib/db/database";
 import { formatCurrency, formatDate, paymentLabel, receiptId } from "@/lib/format";
+import {
+  describePrinterError,
+  findPrinters,
+  getPrinterAddress,
+  printSaleReceipt,
+  resetPrinterAddress,
+  type Device,
+} from "@/lib/printer";
 import { useIsTablet } from "@/lib/responsive";
 import { tokens } from "@/lib/theme";
 import type { SaleDetail } from "@/lib/types";
@@ -27,6 +34,11 @@ export default function ReceiptScreen() {
   const [sale, setSale] = useState<SaleDetail | null>(null);
   const [cashier, setCashier] = useState<string>("");
   const [loading, setLoading] = useState(true);
+
+  const [printerOpen, setPrinterOpen] = useState(false);
+  const [printers, setPrinters] = useState<Device[]>([]);
+  const [printing, setPrinting] = useState(false);
+  const [printerNotice, setPrinterNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!db || !Number.isFinite(saleId)) return;
@@ -69,29 +81,48 @@ export default function ReceiptScreen() {
       .join("\n");
   }, [sale, subtotal]);
 
-  const onPrint = useCallback(async () => {
-    if (!sale) return;
-    const rows = sale.lines
-      .map(
-        (l) =>
-          `<tr><td>${l.quantity} × ${l.name}</td><td style="text-align:right">${formatCurrency(l.price * l.quantity)}</td></tr>`,
-      )
-      .join("");
-    const html = `<html><body style="font-family:-apple-system,sans-serif;padding:24px">
-      <h2>Smart Switch Mobile</h2>
-      <p>${receiptId(sale.id, sale.createdAt)}<br/>${formatDate(sale.createdAt)} · ${paymentLabel(sale.paymentMethod)}</p>
-      <table style="width:100%;border-collapse:collapse">${rows}</table>
-      <hr/>
-      <p style="text-align:right">Subtotal ${formatCurrency(subtotal)}<br/>
-      Discount −${formatCurrency(sale.discount)}<br/>
-      <b>Total paid ${formatCurrency(sale.total)}</b></p>
-    </body></html>`;
+  const openPrinterPicker = useCallback(async () => {
+    setPrinterNotice(null);
     try {
-      await Print.printAsync({ html });
-    } catch {
-      // user cancelled / no printer
+      const found = await findPrinters();
+      setPrinters(found);
+      setPrinterOpen(true);
+    } catch (error) {
+      setPrinterNotice(describePrinterError(error));
+      setPrinterOpen(true);
     }
-  }, [sale, subtotal]);
+  }, []);
+
+  const doPrint = useCallback(
+    async (address: string) => {
+      if (!sale) return;
+      setPrinting(true);
+      setPrinterNotice(null);
+      try {
+        await printSaleReceipt(address, sale);
+        setPrinterOpen(false);
+      } catch (error) {
+        setPrinterNotice(describePrinterError(error));
+      } finally {
+        setPrinting(false);
+      }
+    },
+    [sale],
+  );
+
+  const onPrint = useCallback(async () => {
+    const remembered = getPrinterAddress();
+    if (remembered) {
+      await doPrint(remembered);
+    } else {
+      await openPrinterPicker();
+    }
+  }, [doPrint, openPrinterPicker]);
+
+  const onPrintSetup = useCallback(() => {
+    resetPrinterAddress();
+    void openPrinterPicker();
+  }, [openPrinterPicker]);
 
   const onShare = useCallback(async () => {
     const message = receiptText();
@@ -165,6 +196,65 @@ export default function ReceiptScreen() {
     </View>
   );
 
+  const printerModal = (
+    <Modal
+      visible={printerOpen}
+      transparent
+      animationType="fade"
+      onRequestClose={() => !printing && setPrinterOpen(false)}
+    >
+      <View style={styles.printerScrim} onStartShouldSetResponder={() => true}>
+        <View style={styles.printerDialog}>
+          <View style={styles.printerHeader}>
+            <Ionicons name="print-outline" size={20} color={tokens.color.inkStrong} />
+            <Text style={styles.printerTitle}>Print receipt</Text>
+          </View>
+          <Text style={styles.printerHint}>Pick a Bluetooth thermal printer for this 58mm receipt.</Text>
+
+          {printing ? (
+            <View style={styles.printerStatus}>
+              <Text style={styles.printerStatusText}>Printing…</Text>
+            </View>
+          ) : printerNotice ? (
+            <View style={styles.printerStatus}>
+              <Text style={[styles.printerStatusText, { color: tokens.color.danger }]}>{printerNotice}</Text>
+            </View>
+          ) : printers.length === 0 ? (
+            <View style={styles.printerStatus}>
+              <Text style={styles.printerStatusText}>
+                No printers found. Pair one in system Bluetooth settings, then use Printer setup below.
+              </Text>
+            </View>
+          ) : (
+            <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
+              {printers.map((p) => (
+                <Pressable key={p.address} disabled={printing} onPress={() => doPrint(p.address)} style={styles.printerRow}>
+                  <Ionicons name="bluetooth-outline" size={18} color={tokens.color.accentBrand} />
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={styles.printerName} numberOfLines={1}>
+                      {p.name || "Bluetooth printer"}
+                    </Text>
+                    <Text style={styles.printerAddr}>{p.address}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={17} color={tokens.color.inkFaint} />
+                </Pressable>
+              ))}
+            </ScrollView>
+          )}
+
+          <View style={styles.printerFooter}>
+            <Pressable disabled={printing} onPress={onPrintSetup} style={styles.printerGhost}>
+              <Text style={styles.printerGhostText}>Rescan</Text>
+            </Pressable>
+            <Pressable disabled={printing} onPress={() => setPrinterOpen(false)} style={styles.printerCancel}>
+              <Text style={styles.printerCancelText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
   if (isTablet) {
     return (
       <View style={styles.scrim}>
@@ -175,6 +265,7 @@ export default function ReceiptScreen() {
           </ScrollView>
           {sale && actions}
         </View>
+        {printerModal}
       </View>
     );
   }
@@ -208,6 +299,7 @@ export default function ReceiptScreen() {
           </>
         )}
       </View>
+      {printerModal}
     </View>
   );
 }
@@ -342,4 +434,69 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   actionPrimaryText: { fontFamily: tokens.font.sansBold, fontSize: 14.5, color: tokens.color.accentForeground },
+
+  /* Printer picker modal */
+  printerScrim: {
+    flex: 1,
+    backgroundColor: "rgba(31,37,47,0.52)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  printerDialog: {
+    width: 400,
+    maxWidth: "100%",
+    backgroundColor: tokens.color.surface,
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: "#1B2A44",
+    shadowOpacity: 0.28,
+    shadowRadius: 50,
+    shadowOffset: { width: 0, height: 24 },
+    elevation: 18,
+  },
+  printerHeader: { flexDirection: "row", alignItems: "center", gap: 9 },
+  printerTitle: { fontFamily: tokens.font.sansBold, fontSize: 16, color: tokens.color.ink },
+  printerHint: { marginTop: 4, marginBottom: 14, fontFamily: tokens.font.sans, fontSize: 12.5, color: tokens.color.inkSoft },
+  printerStatus: {
+    paddingVertical: 16,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: tokens.color.panel,
+    marginBottom: 14,
+  },
+  printerStatusText: { fontFamily: tokens.font.sans, fontSize: 13, color: tokens.color.inkSoft },
+  printerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 11,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: tokens.color.borderMuted,
+    marginBottom: 8,
+  },
+  printerName: { fontFamily: tokens.font.sansSemiBold, fontSize: 14, color: tokens.color.ink },
+  printerAddr: { marginTop: 1, fontFamily: tokens.font.mono, fontSize: 11, color: tokens.color.inkFaint },
+  printerFooter: { flexDirection: "row", gap: 10, marginTop: 14 },
+  printerGhost: {
+    flex: 1,
+    height: 44,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  printerGhostText: { fontFamily: tokens.font.sansSemiBold, fontSize: 13.5, color: tokens.color.inkStrong },
+  printerCancel: {
+    flex: 1,
+    height: 44,
+    borderRadius: 11,
+    backgroundColor: tokens.color.accentBrand,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  printerCancelText: { fontFamily: tokens.font.sansBold, fontSize: 13.5, color: tokens.color.accentForeground },
 });

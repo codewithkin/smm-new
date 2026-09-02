@@ -29,6 +29,12 @@
     "plugins": [
       "expo-router",
       [
+        "react-native-thermal-printer-driver",
+        {
+          "bluetoothAlwaysPermission": "Smart Switch uses Bluetooth to connect to your thermal receipt printer."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#FFFFFF",
