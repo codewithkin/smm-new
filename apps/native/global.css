@@ -2,22 +2,52 @@
 @import "uniwind";
 @import "heroui-native/styles";
 
-/* ---- Design-system tokens (Smart Switch Mobile POS) ---- */
+/* ---- Design-system tokens (Smart Switch Mobile POS) ----
+   Mirrors lib/theme.ts. Colors are the design's oklch() source values, exposed
+   as uniwind utilities (bg-brand, text-ink, border-hairline, font-display, ...).
+   Keep this in sync with lib/theme.ts (which holds the hex equivalents). */
 @theme {
-  /* Brand / accent blues */
+  /* Brand / accent blue (hue 258) */
   --color-brand: oklch(0.42 0.15 258);
+  --color-brand-dark: oklch(0.4 0.13 258);
   --color-brand-foreground: oklch(1 0 0);
   --color-accent-brand: oklch(0.55 0.18 258);
+  --color-accent-brand-dark: oklch(0.45 0.18 258);
+  --color-accent-brand-foreground: oklch(1 0 0);
 
-  /* Text */
+  /* Ink / neutral text (hue 262) */
   --color-ink: oklch(0.28 0.02 262);
+  --color-ink-strong: oklch(0.42 0.02 262);
   --color-ink-soft: oklch(0.52 0.015 262);
   --color-ink-muted: oklch(0.6 0.015 262);
   --color-ink-faint: oklch(0.62 0.015 262);
+  --color-ink-subtle: oklch(0.7 0.015 262);
 
-  /* Backgrounds */
+  /* Surfaces & borders */
   --color-panel: oklch(0.985 0.004 258);
   --color-app: oklch(0.955 0.008 255);
+  --color-surface: oklch(1 0 0);
+  --color-surface-muted: oklch(0.965 0.006 262);
+  --color-surface-sunken: oklch(0.945 0.008 262);
+  --color-hairline: oklch(0.918 0.007 262);
+  --color-hairline-muted: oklch(0.92 0.01 262);
+  --color-hairline-strong: oklch(0.87 0.008 262);
+
+  /* Success / in-stock (green, hue 155) */
+  --color-success: oklch(0.44 0.11 155);
+  --color-success-strong: oklch(0.62 0.14 155);
+  --color-success-bg: oklch(0.955 0.03 155);
+  --color-success-border: oklch(0.965 0.02 155);
+
+  /* Danger / out-of-stock (red, hue 25) */
+  --color-danger-brand: oklch(0.52 0.17 25);
+  --color-danger-bg: oklch(0.94 0.04 25);
+  --color-danger-border: oklch(0.96 0.025 25);
+
+  /* Warning / low-stock (amber, hue 65-75) */
+  --color-warning: oklch(0.48 0.12 65);
+  --color-warning-bg: oklch(0.95 0.05 75);
+  --color-warning-border: oklch(0.97 0.03 65);
 
   /* Fonts */
   --font-display: "BricolageGrotesque-Bold", sans-serif;
