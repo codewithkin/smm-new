@@ -170,7 +170,11 @@ export default function PointOfSale() {
             <View style={{ flex: 1, minHeight: 0 }}>{grid}</View>
           </View>
           <View style={styles.tabletCartPane}>
-            <CartCheckoutPanel />
+            <CartCheckoutPanel
+              onCharged={(saleId) =>
+                router.push({ pathname: "/sale/[id]", params: { id: String(saleId) } })
+              }
+            />
           </View>
         </View>
       </ScreenScaffold>

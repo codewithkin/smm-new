@@ -170,7 +170,9 @@ export default function ReceiptScreen() {
       <View style={styles.scrim}>
         <View style={styles.dialog}>
           {successHeader}
-          <View style={{ paddingHorizontal: 30 }}>{body}</View>
+          <ScrollView style={{ maxHeight: 460 }} contentContainerStyle={{ paddingHorizontal: 30 }} showsVerticalScrollIndicator={false}>
+            {body}
+          </ScrollView>
           {sale && actions}
         </View>
       </View>

@@ -165,7 +165,7 @@ export default function ProductFormScreen() {
       <Field label="SKU" hint={skuHint}>
         <TextInput value={sku} onChangeText={setSku} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. SM-A155-128" placeholderTextColor={tokens.color.inkSubtle} style={[styles.inputText, { fontFamily: tokens.font.mono, fontSize: 13.5 }]} />
       </Field>
-      <Field label="Category">{categorySelector}</Field>
+      <Field label="Category" bare>{categorySelector}</Field>
       <Field label="Selling price (USD)">
         <TextInput value={price} onChangeText={setPrice} keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor={tokens.color.inkSubtle} style={styles.inputText} />
       </Field>
@@ -254,17 +254,20 @@ function Field({
   label,
   children,
   full,
+  bare,
   hint,
 }: {
   label: string;
   children: React.ReactNode;
   full?: boolean;
+  /** Render children directly (no bordered input box) — for custom controls. */
+  bare?: boolean;
   hint?: { text: string; color: string } | null;
 }) {
   return (
     <View style={[styles.field, full && styles.fieldFull]}>
       <Text style={styles.fieldLabel}>{label}</Text>
-      <View style={styles.input}>{children}</View>
+      {bare ? <View style={{ marginTop: 7 }}>{children}</View> : <View style={styles.input}>{children}</View>}
       {hint && <Text style={[styles.fieldHint, { color: hint.color }]}>{hint.text}</Text>}
     </View>
   );
@@ -323,7 +326,7 @@ const styles = StyleSheet.create({
   inputText: { fontFamily: tokens.font.sansMedium, fontSize: 14.5, color: tokens.color.ink, padding: 0, height: 46 },
   fieldHint: { marginTop: 6, fontFamily: tokens.font.sans, fontSize: 11.5 },
 
-  segment: { flexDirection: "row", gap: 8, marginVertical: -2 },
+  segment: { flexDirection: "row", gap: 8 },
   segmentBtn: { flex: 1, height: 40, borderRadius: 9, alignItems: "center", justifyContent: "center", borderWidth: 1.5 },
   segmentIdle: { backgroundColor: tokens.color.surface, borderColor: tokens.color.borderMuted },
   segmentActive: { backgroundColor: "#E9F0FC", borderColor: tokens.color.accentBrand },
