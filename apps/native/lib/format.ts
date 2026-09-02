@@ -19,10 +19,13 @@ export function formatDate(ts: number): string {
   });
 }
 
-export const CATEGORY_META: Record<Category, { label: string; icon: string }> = {
-  smartphone: { label: "Smartphones", icon: "phone-portrait" },
-  "audio-device": { label: "Audio Devices", icon: "headset" },
-  accessory: { label: "Accessories", icon: "phone-portrait" },
+export const CATEGORY_META: Record<
+  Category,
+  { label: string; short: string; icon: string }
+> = {
+  smartphone: { label: "Smartphones", short: "Phones", icon: "phone-portrait-outline" },
+  "audio-device": { label: "Audio Devices", short: "Audio", icon: "headset-outline" },
+  accessory: { label: "Accessories", short: "Accessories", icon: "hardware-chip-outline" },
 };
 
 export const CATEGORIES: Category[] = [
@@ -31,10 +34,11 @@ export const CATEGORIES: Category[] = [
   "accessory",
 ];
 
-export const PAYMENT_METHODS: PaymentMethodMeta[] = [
-  { value: "cash", label: "Cash", icon: "cash" },
-  { value: "ecocash", label: "EcoCash", icon: "phone-portrait" },
-  { value: "onemoney", label: "OneMoney", icon: "phone-portrait" },
+/** Provider sub-label shown under each payment method (design detail). */
+export const PAYMENT_METHODS: (PaymentMethodMeta & { sub: string })[] = [
+  { value: "cash", label: "Cash", icon: "cash-outline", sub: "USD" },
+  { value: "ecocash", label: "EcoCash", icon: "phone-portrait-outline", sub: "Econet" },
+  { value: "onemoney", label: "OneMoney", icon: "phone-portrait-outline", sub: "NetOne" },
 ];
 
 export function paymentLabel(method: PaymentMethod | string): string {
